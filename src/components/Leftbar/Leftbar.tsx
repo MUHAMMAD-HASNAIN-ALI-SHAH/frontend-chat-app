@@ -54,7 +54,7 @@ const Leftbar = () => {
     <div className="w-[25%] h-full overflow-y-auto p-2 flex flex-col gap-3 overflow-hidden">
       <input
         type="text"
-        className="w-full border input py-3 px-2"
+        className="w-full border input py-3 px-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
         placeholder="Search user..."
       />
       <div className="overflow-y-auto h-full">
