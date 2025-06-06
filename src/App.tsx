@@ -5,6 +5,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import Signin from "./components/Auth/Signin";
 import Navbar from "./components/Navbar/Navbar";
+import Profile from "./components/Profile/Profile";
 
 function App() {
   const { isAuthenticated, verify } = useAuthStore();
@@ -21,6 +22,10 @@ function App() {
         <Route
           path="/"
           element={isAuthenticated ? <Home /> : <Navigate to="/signin" />}
+        />
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <Profile /> : <Navigate to="/signin" />}
         />
         <Route
           path="/signup"

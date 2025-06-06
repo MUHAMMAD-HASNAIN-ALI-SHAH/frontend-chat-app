@@ -7,7 +7,7 @@ const BASE_URL = "http://localhost:8080";
 
 interface User {
   _id?: string;
-  fullName?: string;
+  username?: string;
   profilePic?: string;
   email: string;
   password?: string;
@@ -16,6 +16,7 @@ interface User {
 interface AuthStore {
   user: User | null;
   authButtonLoader: boolean;
+  profilePicLoader: boolean;
   signin: (userData: User) => Promise<number>;
   signup: (userData: User) => Promise<number>;
   profileUpdate: (profilePic: string) => void;
@@ -33,6 +34,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   authButtonLoader: false,
   onlineUsers: [],
   socket: null,
+  profilePicLoader: false,
 
   signin: async (userData) => {
     try {
@@ -76,23 +78,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   profileUpdate: async (profilePic) => {
     try {
+      set({ profilePicLoader: true });
       const userData = {
         profilePic: profilePic,
       };
       console.log("userData", userData);
-      set({ authButtonLoader: true });
       const response = await axiosInstance.put(
         "/auth/update-profile",
         userData
       );
       set({ user: response.data });
       toast.success("Profile updated successfully!");
+      set({ profilePicLoader: false });
     } catch (error: any) {
+      set({ profilePicLoader: false });
       toast.error(
         error.response?.data?.message || "Update failed. Please try again."
       );
     } finally {
-      set({ authButtonLoader: false });
+      set({ profilePicLoader: false });
     }
   },
 
