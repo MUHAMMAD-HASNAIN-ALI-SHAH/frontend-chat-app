@@ -1,6 +1,9 @@
 import axiosInstance from "@/lib/axios";
 import { toast } from "react-toastify";
 import { create } from "zustand";
+import { io, Socket } from "socket.io-client";
+
+const BASE_URL = "http://localhost:8080";
 
 interface User {
   _id?: string;
@@ -19,6 +22,9 @@ interface AuthStore {
   verify: () => void;
   logout: () => void;
   isAuthenticated: boolean;
+  socket: Socket | null;
+  connectSocket: () => void;
+  disconnectSocket: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -26,6 +32,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   authButtonLoader: false,
   onlineUsers: [],
+  socket: null,
 
   signin: async (userData) => {
     try {
@@ -34,6 +41,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ user: response.data });
       set({ isAuthenticated: true });
       toast.success("Login successful!");
+      get().connectSocket();
       return 1;
     } catch (error: any) {
       console.log(error);
@@ -53,10 +61,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ user: response.data });
       set({ isAuthenticated: true });
       toast.success("Registration successful!");
+      get().connectSocket();
       return 1;
     } catch (error: any) {
       toast.error(
-        error.response?.data?.message || "Registration failed. Please try again."
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
       );
       return 0;
     } finally {
@@ -91,9 +101,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const response = await axiosInstance.get("/auth/verify");
       set({ user: response.data });
       set({ isAuthenticated: true });
+      get().connectSocket();
     } catch (error: any) {
       toast.error(
-        error.response?.data?.message || "Verification failed. Please try again."
+        error.response?.data?.message ||
+          "Verification failed. Please try again."
       );
     }
   },
@@ -104,10 +116,40 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ isAuthenticated: false });
       axiosInstance.get("/auth/logout");
       toast.success("Logout successful!");
+      get().disconnectSocket();
     } catch (error: any) {
       toast.error(
         error.response?.data?.message || "Logout failed. Please try again."
       );
+    }
+  },
+
+  connectSocket: () => {
+    try {
+      const user = get().user;
+
+      if (user && get().socket?.connect) return;
+
+      const socket: Socket = io(BASE_URL, {
+        query: {
+          userId: user?._id,
+        },
+      });
+
+      set({ socket });
+
+      socket.on("connect", () => {
+        console.log("Socket connected:", socket.id);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  disconnectSocket: () => {
+    if (get().socket) {
+      get().socket.disconnect();
+      console.log("Socket disconnected");
     }
   },
 }));
