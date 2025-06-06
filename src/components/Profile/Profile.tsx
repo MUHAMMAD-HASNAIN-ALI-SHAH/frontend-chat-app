@@ -40,11 +40,11 @@ const Profile = () => {
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="w-[28rem] mx-auto p-6 border rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-4">Profile</h2>
+      <div className="w-[28rem] mx-auto flex flex-col gap-5 p-6 py-10 border rounded-lg shadow-md">
+        <h2 className="text-3xl font-semibold mb-4 text-center">Profile</h2>
 
         <div
-          className="relative w-32 h-32 mx-auto cursor-pointer"
+          className="relative w-52 h-52 mx-auto cursor-pointer"
           onClick={handleAvatarClick}
         >
           <Avatar className="w-full h-full">
