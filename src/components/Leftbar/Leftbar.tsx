@@ -4,7 +4,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { AddChat } from "./AddChat";
 
 const Leftbar = () => {
-  const { getChats, chats, addChat } = useChatStore();
+  const { getChats, chats, addChat, setSelectedUser, selectedChat } =
+    useChatStore();
   const { user, socket } = useAuthStore();
 
   useEffect(() => {
@@ -40,7 +41,12 @@ const Leftbar = () => {
             return (
               <div
                 key={chat._id}
-                className="flex items-center gap-2 p-2 border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors rounded"
+                onClick={() => {
+                  setSelectedUser(chat);
+                }}
+                className={`flex items-center gap-2 p-2 border ${
+                  chat === selectedChat ? "bg-gray-300" : ""
+                } border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors rounded`}
               >
                 <img
                   src={otherUser.profilePic || "https://i.pravatar.cc/150"}

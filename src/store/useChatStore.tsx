@@ -1,7 +1,6 @@
 import axiosInstance from "@/lib/axios";
 import { toast } from "react-toastify";
 import { create } from "zustand";
-import { useAuthStore } from "./useAuthStore";
 
 interface User {
   _id: string;
@@ -25,15 +24,19 @@ interface Chat {
 
 interface ChatState {
   chats: Chat[] | [];
+  selectedChat: Chat | null;
   findUser: (username: string) => Promise<User | null>;
   newChat: (recieverUser: User, message: string) => void;
   getChats: () => void;
   addChat: (chat: Chat) => void;
+  setSelectedUser: (chat: Chat) => void;
+  removeSelectedUser: () => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
   chatData: null,
   chats: [],
+  selectedChat: null,
 
   addChat: (chat) => {
     const existing = get().chats;
@@ -75,5 +78,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       toast.error("Failed to fetch chats");
     }
+  },
+
+  setSelectedUser: (chat) => {
+    set({ selectedChat: chat });
+  },
+  removeSelectedUser: () => {
+    set({ selectedChat: null });
   },
 }));
