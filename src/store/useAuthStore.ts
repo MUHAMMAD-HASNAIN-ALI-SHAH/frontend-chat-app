@@ -145,6 +145,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       socket.on("connect", () => {
         console.log("Socket connected:", socket.id);
       });
+
+      socket.on("new-user", () => {
+        console.log("Socket disconnected");
+      });
+
     } catch (error) {
       console.log(error);
     }

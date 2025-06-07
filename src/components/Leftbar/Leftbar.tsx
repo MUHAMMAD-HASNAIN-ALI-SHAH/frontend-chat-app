@@ -1,90 +1,70 @@
-const users = [
-  {
-    id: 1,
-    name: "John Doe",
-    status: "online",
-    image: "https://i.pravatar.cc/150?img=1",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    status: "offline",
-    image: "https://i.pravatar.cc/150?img=2",
-  },
-  {
-    id: 3,
-    name: "Alice Johnson",
-    status: "online",
-    image: "https://i.pravatar.cc/150?img=3",
-  },
-  {
-    id: 4,
-    name: "Bob Brown",
-    status: "offline",
-    image: "https://i.pravatar.cc/150?img=4",
-  },
-  {
-    id: 5,
-    name: "Sarah Connor",
-    status: "online",
-    image: "https://i.pravatar.cc/150?img=5",
-  },
-  {
-    id: 6,
-    name: "Michael Scott",
-    status: "offline",
-    image: "https://i.pravatar.cc/150?img=6",
-  },
-  {
-    id: 7,
-    name: "Dwight Schrute",
-    status: "online",
-    image: "https://i.pravatar.cc/150?img=7",
-  },
-  {
-    id: 8,
-    name: "Jim Halpert",
-    status: "offline",
-    image: "https://i.pravatar.cc/150?img=8",
-  },
-];
+import { useEffect } from "react";
+import { useChatStore } from "@/store/useChatStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { AddChat } from "./AddChat";
 
 const Leftbar = () => {
-  return (
-    <div className="w-[25%] h-full overflow-y-auto p-2 flex flex-col gap-3 overflow-hidden">
-      <input
-        type="text"
-        className="w-full border input py-3 px-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-        placeholder="Search user..."
-      />
-      <div className="overflow-y-auto h-full">
-        {users.map((user) => (
-          <div
-            key={user.id}
-            className="flex items-center gap-2 p-2 rounded-md mb-2 border"
-          >
-            {/* Left 30%: Profile Picture */}
-            <div className="w-[30%] flex justify-center">
-              <img
-                src={user.image}
-                alt={user.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-            </div>
+  const { getChats, chats, addChat } = useChatStore();
+  const { user, socket } = useAuthStore();
 
-            {/* Right 70%: Name & Status */}
-            <div className="w-[70%]">
-              <p className="font-semibold">{user.name}</p>
-              <p
-                className={`text-sm ${
-                  user.status === "online" ? "text-gray-700" : "text-gray-900"
-                }`}
+  useEffect(() => {
+    getChats();
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewChat = (data: { chat: any }) => {
+      addChat(data.chat);
+    };
+
+    socket.on("new-chat", handleNewChat);
+
+    return () => {
+      socket.off("new-chat", handleNewChat);
+    };
+  }, [socket, addChat]);
+
+  return (
+    <div className="w-[25%] h-full overflow-y-auto p-2 flex flex-col gap-3">
+      <AddChat />
+
+      <div className="overflow-y-auto h-full">
+        {chats.length > 0 ? (
+          chats.map((chat) => {
+            const otherUser =
+              chat.firstUserId.username === user?.username
+                ? chat.secondUserId
+                : chat.firstUserId;
+
+            return (
+              <div
+                key={chat._id}
+                className="flex items-center gap-2 p-2 border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors rounded"
               >
-                {user.status}
-              </p>
-            </div>
-          </div>
-        ))}
+                <img
+                  src={otherUser.profilePic || "https://i.pravatar.cc/150"}
+                  alt={otherUser.username}
+                  className="w-12 h-12 rounded-full border border-gray-300"
+                />
+                <div className="flex flex-col">
+                  <span className="font-semibold">{otherUser.username}</span>
+                  <span
+                    className={`text-sm ${
+                      otherUser.status === "online"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {otherUser.status || "offline"}
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-gray-500">No chats found.</div>
+        )}
       </div>
     </div>
   );
