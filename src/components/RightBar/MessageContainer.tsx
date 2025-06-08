@@ -43,7 +43,7 @@ const MessageContainer = () => {
                 <div
                   key={index}
                   className={`flex items-end gap-3 ${
-                    !isSender ? "justify-end" : "justify-start"
+                    isSender ? "justify-end" : "justify-start"
                   }`}
                 >
                   {!isSender && (
