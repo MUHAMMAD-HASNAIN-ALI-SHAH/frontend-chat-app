@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const MessageContainer = () => {
-  const { selectedChat, removeSelectedUser } = useChatStore();
+  const { selectedChat } = useChatStore();
   const { messages, getMessages, deleteAllMessages } = useMessageStore();
   const { user } = useAuthStore();
 
@@ -27,6 +27,7 @@ const MessageContainer = () => {
     minute: "2-digit",
     hour12: true,
   });
+
   return (
     <div
       className={`h-[80%] w-full ${
@@ -34,31 +35,63 @@ const MessageContainer = () => {
       }`}
     >
       {selectedChat ? (
-        <div className="flex flex-col h-full overflow-y-auto p-4">
+        <div className="flex flex-col h-full w-full overflow-y-auto p-4 space-y-4">
           {messages && messages.length > 0 ? (
-            messages.map((message,index) => (
-              <div key={index} className={`mb-4 ${user._id === message.userId ? "self-end" : "self-start"} flex items-center gap-3`}>
-                <img
-                  src="/profile-img.webp"
-                  alt="User Avatar"
-                  className="w-14 h-14 rounded-full border border-gray-300 mb-2"
-                />
-                <div>
-                  <div className="bg-green-500 p-3 rounded-lg shadow-md">
-                    <p className="text-gray-800">{message.text}</p>
+            messages.map((message, index) => {
+              const isSender = user._id === message.userId;
+              return (
+                <div
+                  key={index}
+                  className={`flex items-end gap-3 ${
+                    !isSender ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  {!isSender && (
+                    <img
+                      src="/profile-img.webp"
+                      alt="Receiver Avatar"
+                      className="w-10 h-10 rounded-full border border-gray-300"
+                    />
+                  )}
+
+                  <div className={`max-w-xs flex flex-col space-y-2`}>
+                    <div
+                      className={`p-3 rounded-lg ${
+                        isSender
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 text-gray-900"
+                      }`}
+                    >
+                      {message.image && (
+                        <img
+                          src={message.image}
+                          alt="sent"
+                          className="w-full max-h-52 rounded mb-2 object-cover"
+                        />
+                      )}
+                      {message.text && <p>{message.text}</p>}
+                    </div>
+                    <span className="text-xs text-gray-500">{formatted}</span>
                   </div>
-                  <p>{formatted}</p>
+
+                  {isSender && (
+                    <img
+                      src="/profile-img.webp"
+                      alt="Sender Avatar"
+                      className="w-10 h-10 rounded-full border border-gray-300"
+                    />
+                  )}
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
-            <div className="text-center text-gray-500">No messages yet.</div>
+            <div className="text-center text-gray-500 w-full">
+              No messages yet.
+            </div>
           )}
         </div>
       ) : (
-        <>
-          <NoChatSelected />
-        </>
+        <NoChatSelected />
       )}
     </div>
   );

@@ -82,11 +82,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   setSelectedUser: (chat) => {
-    useMessageStore.getState().deleteAllMessages();
     set({ selectedChat: chat });
   },
   removeSelectedUser: () => {
-    useMessageStore.getState().deleteAllMessages();
     set({ selectedChat: null });
   },
 }));
