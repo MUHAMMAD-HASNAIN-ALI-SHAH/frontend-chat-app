@@ -1,6 +1,7 @@
 import axiosInstance from "@/lib/axios";
 import { toast } from "react-toastify";
 import { create } from "zustand";
+import { useMessageStore } from "./useMessageStore";
 
 interface User {
   _id: string;
@@ -81,9 +82,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   setSelectedUser: (chat) => {
+    useMessageStore.getState().deleteAllMessages();
     set({ selectedChat: chat });
   },
   removeSelectedUser: () => {
+    useMessageStore.getState().deleteAllMessages();
     set({ selectedChat: null });
   },
 }));

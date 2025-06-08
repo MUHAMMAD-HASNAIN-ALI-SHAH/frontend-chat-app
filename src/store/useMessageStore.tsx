@@ -1,3 +1,4 @@
+import axiosInstance from "@/lib/axios";
 import { create } from "zustand";
 
 export interface Message {
@@ -5,7 +6,7 @@ export interface Message {
   userId: string;
   recieverId: string;
   chatId: string;
-  text: string;
+  text?: string;
   image?: string;
   isRead?: boolean;
   createdAt?: string;
@@ -15,6 +16,22 @@ export interface Message {
 interface MessageState {
   messages: Message[] | [];
   getMessages: (chatId: string) => Promise<void>;
+  deleteAllMessages: () => void;
 }
 
-export const useChatStore = create<MessageState>((set, get) => ({}));
+export const useMessageStore = create<MessageState>((set, get) => ({
+  messages: [],
+
+  getMessages: async (chatId: string) => {
+    try {
+      const response = await axiosInstance.get(
+        `/message/get-messages/${chatId}`
+      );
+      set({ messages: response.data.messages });
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  },
+
+  deleteAllMessages: () => set({ messages: [] })
+}));
