@@ -12,6 +12,8 @@ const Leftbar = () => {
     getChats();
   }, []);
 
+  useEffect(() => {}, []);
+
   useEffect(() => {
     if (!socket) return;
 
@@ -30,7 +32,9 @@ const Leftbar = () => {
     <div className="w-[25%] h-full overflow-y-auto p-2 flex flex-col gap-3">
       <AddChat />
 
-      <div className="overflow-y-auto h-full">
+      
+
+      <div className="overflow-y-auto h-full flex flex-col gap-2">
         {chats.length > 0 ? (
           chats.map((chat) => {
             const otherUser =
@@ -46,7 +50,7 @@ const Leftbar = () => {
                 }}
                 className={`flex items-center gap-2 p-2 border ${
                   chat === selectedChat ? "bg-gray-300" : ""
-                } border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors rounded`}
+                } border-gray-300 hover:bg-gray-300 cursor-pointer transition-colors rounded`}
               >
                 <img
                   src={otherUser.profilePic || "https://i.pravatar.cc/150"}
