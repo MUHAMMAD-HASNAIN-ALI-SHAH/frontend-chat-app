@@ -1,20 +1,28 @@
 import { useChatStore } from "@/store/useChatStore";
 import NoChatSelected from "./NoChatSelected";
 import { useMessageStore } from "@/store/useMessageStore";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const MessageContainer = () => {
   const { selectedChat } = useChatStore();
-  const { messages, getMessages, deleteAllMessages } = useMessageStore();
+  const {
+    messages,
+    getMessages,
+    deleteAllMessages,
+    subscribeToMessages,
+    unSubscribeFromMessages,
+  } = useMessageStore();
   const { user } = useAuthStore();
 
   useEffect(() => {
     if (selectedChat) {
       getMessages(selectedChat._id);
     }
+    subscribeToMessages();
     return () => {
       deleteAllMessages();
+      unSubscribeFromMessages();
     };
   }, [selectedChat, getMessages]);
 
@@ -28,6 +36,14 @@ const MessageContainer = () => {
     hour12: true,
   });
 
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <div
       className={`h-[80%] w-full ${
@@ -35,14 +51,14 @@ const MessageContainer = () => {
       }`}
     >
       {selectedChat ? (
-        <div className="flex flex-col h-full w-full overflow-y-auto p-4 space-y-4">
+        <div className="flex flex-col h-full w-full overflow-y-auto p-4 space-y-4 transition-all duration-300 ease-in-out" ref={scrollRef}>
           {messages && messages.length > 0 ? (
             messages.map((message, index) => {
               const isSender = user._id === message.userId;
               return (
                 <div
                   key={index}
-                  className={`flex items-end gap-3 ${
+                  className={`flex items-end gap-3 transition-all duration-300 ease-in-out ${
                     isSender ? "justify-end" : "justify-start"
                   }`}
                 >

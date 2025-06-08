@@ -21,6 +21,8 @@ interface MessageState {
   getMessages: (chatId: string) => Promise<void>;
   sendMessage: (text: string, image: string) => Promise<void>;
   deleteAllMessages: () => void;
+  subscribeToMessages: () => void;
+  unSubscribeFromMessages: () => void;
 }
 
 export const useMessageStore = create<MessageState>((set, get) => ({
@@ -56,11 +58,31 @@ export const useMessageStore = create<MessageState>((set, get) => ({
 
     try {
       const response = await axiosInstance.post("/message/send-message", form);
-      console.log("Message sent:", response.data);
       set({ messages: [...get().messages, response.data] });
     } catch (error) {
       toast.error("Error sending message:", error);
     }
+  },
+
+  subscribeToMessages: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.on("newMessage", (message: Message) => {
+      const selectedChat = useChatStore.getState().selectedChat;
+
+      if (selectedChat && selectedChat._id === message.chatId) {
+        set({
+          messages: [...get().messages, message],
+        });
+      }
+    });
+  },
+
+  unSubscribeFromMessages: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("newMessage");
   },
 
   deleteAllMessages: () => set({ messages: [] }),
