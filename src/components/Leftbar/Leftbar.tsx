@@ -4,8 +4,14 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { AddChat } from "./AddChat";
 
 const Leftbar = () => {
-  const { getChats, chats, addChat, setSelectedUser, selectedChat } =
-    useChatStore();
+  const {
+    getChats,
+    chats,
+    addChat,
+    setSelectedUser,
+    selectedChat,
+    updateChat,
+  } = useChatStore();
   const { user, socket } = useAuthStore();
 
   useEffect(() => {
@@ -21,10 +27,15 @@ const Leftbar = () => {
       addChat(data.chat);
     };
 
-    socket.on("new-chat", handleNewChat);
+    const handleUpdateChat = (data: { chatId: string; lastMessage: any }) => {
+      updateChat(data.chatId, data.lastMessage);
+    };
 
+    socket.on("new-chat", handleNewChat);
+    socket.on("chatUpdate", handleUpdateChat);
     return () => {
       socket.off("new-chat", handleNewChat);
+      socket.off("chatUpdate", handleUpdateChat);
     };
   }, [socket, addChat]);
 
@@ -32,10 +43,8 @@ const Leftbar = () => {
     <div className="w-[25%] h-full overflow-y-auto p-2 flex flex-col gap-3">
       <AddChat />
 
-      
-
       <div className="overflow-y-auto h-full flex flex-col gap-2">
-        {chats.length > 0 ? (
+        {chats && chats.length > 0 ? (
           chats.map((chat) => {
             const otherUser =
               chat.firstUserId.username === user?.username
@@ -59,14 +68,10 @@ const Leftbar = () => {
                 />
                 <div className="flex flex-col">
                   <span className="font-semibold">{otherUser.username}</span>
-                  <span
-                    className={`text-sm ${
-                      otherUser.status === "online"
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {otherUser.status || "offline"}
+                  <span className="text-sm text-gray-600 truncate">
+                    {chat.lastMessage?.startsWith("http")
+                      ? "📷 Image"
+                      : chat.lastMessage}
                   </span>
                 </div>
               </div>

@@ -1,3 +1,4 @@
+import { useChatStore } from "@/store/useChatStore";
 import { useMessageStore } from "@/store/useMessageStore";
 import { File, Send, X } from "lucide-react";
 import { useState, useRef } from "react";
@@ -7,6 +8,7 @@ const MessageInput = () => {
   const [imageBase64, setImageBase64] = useState("");
   const fileInputRef = useRef(null);
   const { sendMessage } = useMessageStore();
+  const { updateChat, selectedChat } = useChatStore();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -26,6 +28,10 @@ const MessageInput = () => {
     if (!message.trim() && !imageBase64) return;
 
     sendMessage(message.trim() || "", imageBase64 || "");
+    updateChat(
+      selectedChat._id,
+      message.trim() === "" ? "📷 Image" : message
+    );
 
     setMessage("");
     setImageBase64("");

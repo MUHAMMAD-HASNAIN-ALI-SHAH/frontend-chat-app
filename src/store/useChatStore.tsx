@@ -30,6 +30,7 @@ interface ChatState {
   newChat: (recieverUser: User, message: string) => void;
   getChats: () => void;
   addChat: (chat: Chat) => void;
+  updateChat: (chatId: string, lastMessage: string) => void;
   setSelectedUser: (chat: Chat) => void;
   removeSelectedUser: () => void;
 }
@@ -42,6 +43,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
   addChat: (chat) => {
     const existing = get().chats;
     set({ chats: [chat, ...existing] });
+  },
+
+  updateChat: (chatId: string, lastMessage: string) => {
+    const existingChats = get().chats;
+    const updatedChats = existingChats.map((chat) => {
+      if (chat._id === chatId) {
+        return {
+          ...chat,
+          lastMessage,
+          lastMessageTime: new Date(),
+          unseenMessagesCount: (chat.unseenMessagesCount || 0) + 1,
+        };
+      }
+      return chat;
+    });
+    set({ chats: updatedChats });
   },
 
   findUser: async (username: string) => {
