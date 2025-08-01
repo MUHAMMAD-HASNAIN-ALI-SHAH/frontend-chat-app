@@ -1,8 +1,9 @@
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChatStore } from "@/store/useChatStore";
+import { X } from "lucide-react";
 
 const ChatHeader = () => {
-  const { selectedChat } = useChatStore();
+  const { selectedChat, removeSelectedUser } = useChatStore();
   const { user } = useAuthStore();
   return (
     <>
@@ -10,13 +11,18 @@ const ChatHeader = () => {
         <div className="h-[10%] w-full border-b border-gray-200">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center space-x-2">
+              <X className="cursor-pointer" onClick={removeSelectedUser} />
               <img
                 src="/profile-img.webp"
                 alt="User Avatar"
                 className="w-12 h-12 rounded-full border border-gray-300"
               />
               <div className="font-semibold flex flex-col justify-evenly">
-                <span>{selectedChat.firstUserId._id === user._id ? selectedChat.secondUserId.username : selectedChat.firstUserId.username}</span>
+                <span>
+                  {selectedChat.firstUserId._id === user._id
+                    ? selectedChat.secondUserId.username
+                    : selectedChat.firstUserId.username}
+                </span>
                 <span>Online</span>
               </div>
             </div>

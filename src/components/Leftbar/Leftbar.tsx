@@ -40,7 +40,7 @@ const Leftbar = () => {
   }, [socket, addChat]);
 
   return (
-    <div className="w-[25%] h-full overflow-y-auto p-2 flex flex-col gap-3">
+    <>
       <AddChat />
 
       <div className="overflow-y-auto h-full flex flex-col gap-2">
@@ -81,7 +81,7 @@ const Leftbar = () => {
           <div className="text-gray-500">No chats found.</div>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

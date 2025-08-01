@@ -147,9 +147,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
 
       socket.on("new-user", () => {
-        console.log("Socket disconnected");
+        console.log("Socket new-user event received");
       });
-
     } catch (error) {
       console.log(error);
     }
